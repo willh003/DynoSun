@@ -12,6 +12,7 @@ class Window():
         @param pointIndices: a list of indices of the points in this window in the specified csv files (returned by getPointIndices())
 
         @param area: the area of the window (returned by getArea)
+        
         """
         
         self.coordinates = coordinates
@@ -47,7 +48,13 @@ class Window():
         pass
 
     def getEnergyFlow(self):
-        """.DS_Store"""
+        """
+        @return: comparison metric for energy flow through this window
+
+        sum energy at points in pointIndices, divide by number of points, multiply by window area   
+
+        higher window area and higher point energy return a larger energyflow metric 
+        """
 
         pass
 
