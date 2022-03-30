@@ -29,4 +29,5 @@ class Room():
     def getRoomEnergyFlow(self):
         # return heuristic value for this room
         # sum of window energy flows divided by room volume (maybe multiply by some scalar)
+        # TODO fix this
         return np.sum(self.windows) / self.volume
