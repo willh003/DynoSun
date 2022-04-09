@@ -35,9 +35,9 @@ class Window():
                 data[i][j] = float(data[i][j])
         
     def setPointIndices(self, filepath):
-        self.pointIndices = self.getPoints(filepath)
+        self.pointIndices = self.getPoints(self.coordinates, filepath)
 
-    def getPoints(self, filepath):        
+    def getPoints(self, coordinates, filepath):        
         # @param filepath: path to open the csv containing point locations
         # @return: the points from the simulation contained within the window (format: index referring to the points in the csv file)
         # TODO: where do we enter filepath? Who calls it?
@@ -47,13 +47,39 @@ class Window():
             reader = csv.reader(f)
             data = list(reader)
         self.cleanData(data)
+        
         filteredList = []
         indexList = []
+
+        v1 = [coordinates[0][0] - coordinates[1][0], coordinates[0][1] - coordinates[1][1], coordinates[0][2] - coordinates[1][2]]
+        v2 = [coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1], coordinates[0][2] - coordinates[2][2]]
+        
+        normVect = np.cross(v1, v2) # vector perpendicular to plane of window
+        planePoint = coordinates[0] # point on plane (given by coordinates at 0, in this case)
+        d = -np.dot(normVect, planePoint) # ax + by + cz = d plane equation
+
         for i in range(len(data)):
-            if (float(data[i][0]) > self.coordinates[0][0] and float(data[i][0]) < self.coordinates[1][0] and 
-            float(data[i][1]) > self.coordinates[2][1] and float(data[i][1]) < self.coordinates[0][1]):
+            data[i] = poi
+            normDist = abs(np.dot(normVect, poi) + d) / (np.linalg.norm(normVect))
+
+            pointVect = np.subtract(poi, planePoint)
+
+            v1_norm = np.linalg.norm(v1)
+            proj = (np.dot(pointVect, v1) / (v1_norm ** 2))*v1 # proj of pointvect along v1
+
+            # if normal distance to plane is less than offset and 
+            # magnitude of projection along vector is less than vector magnitude
+            if normDist <= offset and np.linalg.norm(proj) <= v1_norm: 
                 filteredList.append([data[i]])
                 indexList.append(i)
+
+        # for i in range(len(data)):
+        #     if (float(data[i][0]) > self.coordinates[0][0] and float(data[i][0]) < self.coordinates[1][0] and 
+        #     float(data[i][1]) > self.coordinates[2][1] and float(data[i][1]) < self.coordinates[0][1]):
+        #         filteredList.append([data[i]])
+        #         indexList.append(i)
+
+
         return indexList
 
     def getArea(self, coordinates):
@@ -64,7 +90,7 @@ class Window():
         v2 = [coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1], coordinates[0][2] - coordinates[2][2]]
         
         cross = np.cross(v1, v2)
-        return np.sqrt(cross.dot(cross))
+        return np.sqrt(np.dot(cross, cross))
         
 
     def setEnergyFlow(self, filepath):
@@ -90,7 +116,7 @@ class Window():
         
 window = Window(coordinates=[[800, 250, 413.34], [900, 250, 413.34], [800, 200, 410.34], [900, 200, 410.34]]
 , area=20, pointLocFile='resources/point_locations.csv')
-window.setEnergyFlow('resources/energy_at_points.csv')
-print(window.energyFlow)
+# window.setEnergyFlow('resources/energy_at_points.csv')
+# print(window.energyFlow)
 
-        
+window.getPoints(window.coordinates, "resources/point_locations.csv")        

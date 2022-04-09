@@ -22,7 +22,7 @@ class Building():
         h = minHeap(self.rooms, priority = energyFlow)
         while h:
             r = peek(h)
-            for e in self.events:
+            for e in sorted(self.events, high to low attendees):
                 if e.adequateSize(r):
                     e.room_assignment = r
                     break
