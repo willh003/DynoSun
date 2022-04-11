@@ -7,8 +7,8 @@ class Room():
         # @param dimensions: the xyz dimensions of the room (in meters) OR MAYBE we should use corner points (then we can locate it)
         # @param heatLag: the estimated lag of heat in the room from light (low priority right now)
 
-        self.volume = getVolume(dimensions)
-        self.surfaceAreas = getSurfaceAreas(dimensions)
+        self.volume = self.getVolume(dimensions)
+        # self.surfaceAreas = self.getSurfaceAreas(dimensions)
         self.maxCapacity = maxCapacity
         self.windows = windows # list of window objects in this room
         self.location = location
@@ -18,11 +18,6 @@ class Room():
         # May need to change this, based on dimensions spec
         return np.prod(dimensions)
 
-    def getSurfaceAreas(self, dimensions):
-        # return list containing surface areas for walls, floors, ceilings
-        # low priority (not necessary for prototype)
-        pass
-
     def setRoomEnergyFlow(self):
         self.energyFlow = getRoomEnergyFlow()
 
@@ -30,4 +25,9 @@ class Room():
         # return heuristic value for this room
         # sum of window energy flows divided by room volume (maybe multiply by some scalar)
         # TODO fix this
-        return np.sum(self.windows) / self.volume
+        return np.sum([window.energyFlow for window in self.windows]) / self.volume
+
+    def getSurfaceAreas(self, dimensions):
+    # return list containing surface areas for walls, floors, ceilings
+    # low priority (not necessary for prototype)
+        pass

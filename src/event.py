@@ -1,3 +1,4 @@
+from room import Room
 
 class Event():
 
@@ -11,5 +12,5 @@ class Event():
         # @return true if room is large enough for this event, false otherwise
         # something like: return room.volume > (attendees * ventilation heuristic) && room.maxCapacity > attendees
         # or maybe just return room.maxCapacity > attendees
-
-        pass
+        return self.attendees < room.maxCapacity
+        

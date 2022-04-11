@@ -37,7 +37,51 @@ class Window():
     def setPointIndices(self, filepath):
         self.pointIndices = self.getPoints(self.coordinates, filepath)
 
-    def getPoints(self, coordinates, filepath):        
+    def getPoints(self, pointCoords, windowCoords):
+        with open(pointCoords) as f:
+            reader = csv.reader(f)
+            points = list(reader)
+        self.cleanData(points)
+
+        with open(windowCoords) as f:
+            reader = csv.reader(f)
+            window = list(reader)
+        self.cleanData(window) # TODO: write a different cleanData method for window data (different format)
+
+        # absolute values so the coordinate system is never negative (want +x, +y, +z)
+        # this might be a problem
+        xvect = list(map(abs, window[1] - window[0]))
+        yvect = list(map(abs, window[3] - window[0]))
+        zvect = list(map(abs, window[4] - window[0]))
+
+        xlocal = xvect/np.linalg.norm(xvect)
+        ylocal = yvect/np.linalg.norm(yvect)
+        zlocal = zvect/np.linalg.norm(zvect)
+
+        transMatrix = np.array([x, y, z]).T # transformation matrix with new coordinate axes as columns
+        
+        filteredList = []
+        indexList = []
+        for point in points:
+            transPoint = np.matmul(transMatrix, np.array([point]).T) # transform the point to new axes
+            if self.isInAlignedBox(point, window):
+                filteredList.append([points[i]]) # not used atm, but contains a list of point locations
+                indexList.append(i) # contains a list of point indices
+        
+        return indexList
+
+    def isInAlignedBox(self, point, boundingBox):
+        box = np.array(boundingBox)
+        mins = box.min(axis=0)
+        maxs = box.max(axis=0)
+        x = point[0]
+        y = point[1]
+        z = point[2]
+
+        return mins[0] <= x and maxs[0] >= x and mins[1] <= y and maxs[1] >= y and mins[2] <= z and maxs[2] >= z
+
+
+    def getPointsOld(self, coordinates, filepath):        
         # @param filepath: path to open the csv containing point locations
         # @return: the points from the simulation contained within the window (format: index referring to the points in the csv file)
         # TODO: where do we enter filepath? Who calls it?
@@ -109,7 +153,7 @@ class Window():
         
         energies = []
         for i in self.pointIndices:
-            energies.append(data[i][0])
+            energies.append(data[i])
         
         return np.average(energies) * self.area * self.transfer_coefficient 
         
