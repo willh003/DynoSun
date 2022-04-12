@@ -30,3 +30,7 @@ class Building():
         """
 
         pass
+
+    def optimalRoom(self, date, time):
+        # return the best room for the given date and time slot, based on energy recieved by its windows
+        pass
