@@ -1,9 +1,30 @@
 from window import Window
+from building import Building
+import os
 
 # TODO: figure out the call procedure for scheduling
 # TODO: add resources to .gitignore (so we don't take all of my repo space)
 
-def main():            
+def main():    
+    # rooms = input("How many rooms are in the building?: ")
+    # windowsInRoomIndex = []
+    # for i in range(int(rooms)):
+    #     windowInRoom = input("How many windows are in room "+str(i+1)+"?: ")
+    #     windowsInRoomIndex = windowsInRoomIndex + [windowInRoom]
+    
+    # windowCornerPts = []
+    # for i in windowsInRoomIndex:
+    #     windowPts = input("Enter the window's four corner points (separated by a comma): ")
+    #     windowCornerPts
+    month = input("Month: ")
+    day = input("Day: ")
+    hour = input("Hour: ")
+
+    building = Building(0,0)
+    optRoom = building.schedule(month, day, hour)
+
+
+
     window1 = Window(windowLocFile='resources/window_east1_pts.csv', pointLocFile='resources/point_locations.csv')
     window2 = Window(windowLocFile='resources/window_west1_pts.csv', pointLocFile='resources/point_locations.csv')
 
