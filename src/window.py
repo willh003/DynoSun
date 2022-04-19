@@ -17,6 +17,8 @@ class Window():
         self.transfer_coefficient = transfer_coefficient
         self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
         self.energyFlow = energyFlow # initialize to 0 (user can override)
+        self.windowLocFile = windowLocFile
+        self.pointLocFile = pointLocFile
         
 
     def cleanData(self, data):
@@ -29,8 +31,7 @@ class Window():
     def getWindowCoords(self, filepath):
         # @param filepath: path to file containing window coordinates 
         # @return: a list of eight coordinates defining the location of the window's eight corners (its a box)
-
-        with open(filepath) as f:
+        with open(filepath, encoding="utf8", errors='ignore') as f:
             reader = csv.reader(f)
             window = list(reader)
         
@@ -73,6 +74,7 @@ class Window():
     def setPointIndices(self, windowLocFile, pointLocFile):
         # used to change filepath for this window after initialization
         self.coordinates = self.getWindowCoords(windowLocFile)
+
         self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
 
     def isInAlignedBox(self, point, boundingBox, error):
@@ -128,11 +130,6 @@ class Window():
                 filteredList.append([data[i]])
                 indexList.append(i)
 
-        # for i in range(len(data)):
-        #     if (float(data[i][0]) > self.coordinates[0][0] and float(data[i][0]) < self.coordinates[1][0] and 
-        #     float(data[i][1]) > self.coordinates[2][1] and float(data[i][1]) < self.coordinates[0][1]):
-        #         filteredList.append([data[i]])
-        #         indexList.append(i)
 
 
         return indexList
@@ -151,21 +148,23 @@ class Window():
 
     def setEnergyFlow(self, energyFile):
         self.energyFlow = self.getEnergyFlow(energyFile)
+        
 
     def getEnergyFlow(self, energyFile):
         # @param filepath: the path to the file containing the energy of the points (enumerated by index)
         # @return: comparison metric for energy flow through this window
         # average(energy at points in pointIndices) * window area * transfer_coefficient 
         # higher point energy, higher window area, and higher coefficient return a larger energyflow metric 
-        
         with open(energyFile) as f:
             reader = pd.read_csv(f)
            
             data = reader.values.tolist()
         
         energies = []
+
         for i in self.pointIndices:
             energies.append(data[i])
-        
+
+        # print(np.average(energies) * self.area * self.transfer_coefficient)
         return np.average(energies) * self.area * self.transfer_coefficient 
         
