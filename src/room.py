@@ -26,8 +26,7 @@ class Room():
         # return heuristic value for this room
         # sum of window energy flows divided by room volume (maybe multiply by some scalar)
         # TODO fix this
-
-        return np.sum([window.energyFlow for window in self.windows]) / self.volume
+        return np.sum([window.energyFlow for window in self.windows])/float(self.volume)
 
     def getSurfaceAreas(self, dimensions):
     # return list containing surface areas for walls, floors, ceilings

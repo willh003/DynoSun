@@ -19,6 +19,8 @@ def main():
 
     building = Building()
     optRoom = building.schedule()
+    print(optRoom)
+    return optRoom
 
 
 

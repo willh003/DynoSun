@@ -6,21 +6,19 @@ import pandas as pd
 
 class Window():
 
-    def __init__(self, windowLocFile, pointLocFile, windowPointError=.5, energyFlow=0, transfer_coefficient=1):        
+    def __init__(self, windowCoords, pointLocFile, windowPointError=.5, energyFlow=0, transfer_coefficient=1):        
         # @param windowLocFile: a path to file containing window locations
         # @param pointLocFile: the path to the file containing the locations in 3 space of the points 
         # @param transfer_coefficient: value 0-1, where 1 is completely transparent - sort of arbritray for now
         
-        self.coordinates = self.getWindowCoords(windowLocFile)
+        self.coordinates = windowCoords
         self.allowedError = windowPointError
         self.area = self.getArea(self.coordinates) # Area of the window
         self.transfer_coefficient = transfer_coefficient
         self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
         self.energyFlow = energyFlow # initialize to 0 (user can override)
-        self.windowLocFile = windowLocFile
         self.pointLocFile = pointLocFile
         
-
     def cleanData(self, data):
         for i in range(len(data)):
             for j in range(len(data[0])):
@@ -37,17 +35,16 @@ class Window():
         
         window = window[:-1] # last row is text, which we don't want
         self.cleanData(window)
-
         return window
 
     def getPoints(self, window, pointCoords):
         # @param indexList: a list of indices of the points in this window in the specified csv files
         # https://stackoverflow.com/questions/21037241/how-to-determine-a-point-is-inside-or-outside-a-cube#:~:text=Construct%20the%20direction%20vector%20from,is%20outside%20of%20the%20cube
         
-        with open(pointCoords) as f:
-            reader = csv.reader(f)
-            points = list(reader)
-        self.cleanData(points)
+        # with open(pointCoords) as f:
+        #     reader = csv.reader(f)
+        #     points = list(reader)
+        # self.cleanData(points)
 
         # absolute values so the coordinate system is never negative (want +x, +y, +z)
         # this might be a problem - may need to manually find the larger points and use those as the references
@@ -63,17 +60,24 @@ class Window():
         
         filteredList = []
         indexList = []
-        for i in range(len(points)):
-            point = points[i]
+        for i in range(len(window)):
+            point = window[i]
             transPoint = np.matmul(transMatrix, np.array([point]).T) # transform the point to new axes
             if self.isInAlignedBox(point, window, self.allowedError):
                 filteredList.append(point) # not used atm, but contains a list of point locations
                 indexList.append(i) # contains a list of point indices
+
         return indexList
 
-    def setPointIndices(self, windowLocFile, pointLocFile):
+    def setPointIndicesOld(self, windowLocFile, pointLocFile):
         # used to change filepath for this window after initialization
         self.coordinates = self.getWindowCoords(windowLocFile)
+
+        self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
+
+    def setPointIndices(self, windowCoords, pointLocFile):
+        # used to change filepath for this window after initialization
+        self.coordinates = windowCoords
 
         self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
 
@@ -138,7 +142,7 @@ class Window():
         # @return: area of window, based on window coordinates (for a rectangle, just base * height) 
         # |u x v| -> area of parallelogram in 3 space
         # TODO: test this method
-        
+        print(coordinates)
         v1 = [coordinates[0][0] - coordinates[1][0], coordinates[0][1] - coordinates[1][1], coordinates[0][2] - coordinates[1][2]]
         v2 = [coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1], coordinates[0][2] - coordinates[2][2]]
         
@@ -154,7 +158,7 @@ class Window():
         # @param filepath: the path to the file containing the energy of the points (enumerated by index)
         # @return: comparison metric for energy flow through this window
         # average(energy at points in pointIndices) * window area * transfer_coefficient 
-        # higher point energy, higher window area, and higher coefficient return a larger energyflow metric 
+        # higher point energy, higher window area, and higher coefficient return a larger energyflow metric
         with open(energyFile) as f:
             reader = pd.read_csv(f)
            
@@ -162,6 +166,8 @@ class Window():
         
         energies = []
 
+        if self.pointIndices == []:
+            return 0
         for i in self.pointIndices:
             energies.append(data[i])
 
