@@ -6,18 +6,22 @@ import pandas as pd
 
 class Window():
 
-    def __init__(self, windowCoords, pointLocFile, windowPointError=.5, energyFlow=0, transfer_coefficient=1):
-        # @param windowLocFile: a path to file containing window locations
+    def __init__(self, windowCoords, pointLocFile, windowPointOffset=1, energyFlow=0, transfer_coefficient=1):
+        # @param windowCoords: a list of 4 points (x, y, z) indicating the window corners
         # @param pointLocFile: the path to the file containing the locations in 3 space of the points
         # @param transfer_coefficient: value 0-1, where 1 is completely transparent - sort of arbritray for now
 
         self.coordinates = windowCoords
-        self.allowedError = windowPointError
+        self.offset = windowPointOffset
         self.area = self.getArea(self.coordinates) # Area of the window
         self.transfer_coefficient = transfer_coefficient
-        self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
-        self.energyFlow = energyFlow # initialize to 0 (user can override)
         self.pointLocFile = pointLocFile
+
+
+        self.pointIndices = self.getPointIndices(self.coordinates, pointLocFile, windowPointOffset)
+        print(self.pointIndices)
+        self.energyFlow = energyFlow # initialize to 0 (user can override)
+
 
     def cleanData(self, data):
         for i in range(len(data)):
@@ -37,53 +41,57 @@ class Window():
         self.cleanData(window)
         return window
 
-    def getPoints4Corners(self, window, pointCoords):
+    def getPoint4Indices(self, windowCoords, pointCoords):
         # @param indexList: a list of indices of the points in this window in the specified csv files
         # https://stackoverflow.com/questions/21037241/how-to-determine-a-point-is-inside-or-outside-a-cube#:~:text=Construct%20the%20direction%20vector%20from,is%20outside%20of%20the%20cube
 
-        # with open(pointCoords) as f:
-        #     reader = csv.reader(f)
-        #     points = list(reader)
-        # self.cleanData(points)
+        with open(pointCoords) as f:
+            reader = csv.reader(f)
+            points = list(reader)
+        self.cleanData(points)
 
         # absolute values so the coordinate system is never negative (want +x, +y, +z)
         # this might be a problem - may need to manually find the larger points and use those as the references
-        xvect = list(map(abs, np.subtract(window[1], window[0])))
-        yvect = list(map(abs, np.subtract(window[2], window[0])))
+        xvect = list(map(abs, np.subtract(windowCoords[1], windowCoords[0])))
+        yvect = list(map(abs, np.subtract(windowCoords[2], windowCoords[0])))
         zvect = np.cross(xvect, yvect)
 
         xlocal = xvect/np.linalg.norm(xvect)
         ylocal = yvect/np.linalg.norm(yvect)
         zlocal = zvect/np.linalg.norm(zvect)
 
-
         transMatrix = np.array([xlocal, ylocal, zlocal]).T # transformation matrix with new coordinate axes as columns
 
         filteredList = []
         indexList = []
-        for i in range(len(window)):
-            point = window[i]
+        for point in points:
             transPoint = np.matmul(transMatrix, np.array([point]).T) # transform the point to new axes
-            if self.isInAlignedBox(point, window, self.allowedError): # TODO: construct the point first!!
+
+            if self.isInAlignedBox(transPoint, np.linalg.norm(xvect), np.linalg.norm(yvect), self.offset): # TODO: construct the point first!!
                 filteredList.append(point) # not used atm, but contains a list of point locations
                 indexList.append(i) # contains a list of point indices
 
         return indexList
 
-    def getPoints8Corners(self, window, pointCoords):
+    def getPointIndices(self, window, pointCoords, offset):
         # @param indexList: a list of indices of the points in this window in the specified csv files
         # https://stackoverflow.com/questions/21037241/how-to-determine-a-point-is-inside-or-outside-a-cube#:~:text=Construct%20the%20direction%20vector%20from,is%20outside%20of%20the%20cube
 
-        # with open(pointCoords) as f:
-        #     reader = csv.reader(f)
-        #     points = list(reader)
-        # self.cleanData(points)
+        with open(pointCoords) as f:
+            reader = csv.reader(f)
+            points = list(reader)
+        self.cleanData(points)
 
         # absolute values so the coordinate system is never negative (want +x, +y, +z)
         # this might be a problem - may need to manually find the larger points and use those as the references
         xvect = list(map(abs, np.subtract(window[1], window[0])))
-        yvect = list(map(abs, np.subtract(window[3], window[0])))
-        zvect = list(map(abs, np.subtract(window[4], window[0])))
+        yvect = list(map(abs, np.subtract(window[2], window[0])))
+        zvect = np.cross(xvect, yvect)
+        zvect = offset * zvect/np.linalg.norm(zvect)
+
+        for i in range(len(window[:4])):
+            window.append(np.add(window[i], zvect))
+            window[i] = np.add(window[i], -1*zvect)
 
         xlocal = xvect/np.linalg.norm(xvect)
         ylocal = yvect/np.linalg.norm(yvect)
@@ -93,21 +101,14 @@ class Window():
 
         filteredList = []
         indexList = []
-        for i in range(len(window)):
-            point = window[i]
+        for i in range(len(points)):
+            point = points[i]
             transPoint = np.matmul(transMatrix, np.array([point]).T) # transform the point to new axes
-            if self.isInAlignedBox(point, window, self.allowedError):
+            if self.isInAlignedBox(point, window, self.offset):
                 filteredList.append(point) # not used atm, but contains a list of point locations
                 indexList.append(i) # contains a list of point indices
 
         return indexList
-
-
-    def setPointIndices(self, windowCoords, pointLocFile):
-        # used to change filepath for this window after initialization
-        self.coordinates = windowCoords
-
-        self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
 
     def isInAlignedBox(self, point, boundingBox, error):
         # TODO: figure out where error should be added (probably either x or y)
@@ -115,8 +116,6 @@ class Window():
         box = np.array(boundingBox)
         mins = box.min(axis=0)
         maxs = box.max(axis=0)
-        mins[0] -= error
-        maxs[0] += error
 
         x = point[0]
         y = point[1]
@@ -124,11 +123,28 @@ class Window():
 
         return mins[0] <= x and maxs[0] >= x and mins[1] <= y and maxs[1] >= y and mins[2] <= z and maxs[2] >= z
 
+    def isInAlignedBox4(self, point, xbound, ybound, zbound):
+        # TODO: figure out where error should be added (probably either x or y)
+
+        x = point[0]
+        y = point[1]
+        z = point[2]
+
+        return x <= xbound and y <= ybound and z >= -1*zbound and z <= zbound
+        #return mins[0] <= x and maxs[0] >= x and mins[1] <= y and maxs[1] >= y and mins[2] <= z and maxs[2] >= z
+
+    def setPointIndices(self, windowCoords, pointLocFile):
+        # used to change filepath for this window after initialization
+        self.coordinates = windowCoords
+
+        self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
+
+
     def getArea(self, coordinates):
         # @return: area of window, based on window coordinates (for a rectangle, just base * height)
         # |u x v| -> area of parallelogram in 3 space
         # TODO: test this method
-        print(coordinates)
+
         v1 = [coordinates[0][0] - coordinates[1][0], coordinates[0][1] - coordinates[1][1], coordinates[0][2] - coordinates[1][2]]
         v2 = [coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1], coordinates[0][2] - coordinates[2][2]]
 
