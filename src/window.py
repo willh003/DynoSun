@@ -69,11 +69,6 @@ class Window():
 
         return indexList
 
-    def setPointIndicesOld(self, windowLocFile, pointLocFile):
-        # used to change filepath for this window after initialization
-        self.coordinates = self.getWindowCoords(windowLocFile)
-
-        self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
 
     def setPointIndices(self, windowCoords, pointLocFile):
         # used to change filepath for this window after initialization
@@ -97,46 +92,7 @@ class Window():
         return mins[0] <= x and maxs[0] >= x and mins[1] <= y and maxs[1] >= y and mins[2] <= z and maxs[2] >= z
 
 
-    def getPointsOld(self, coordinates, filepath):    
-        # DEPRECATED    
-        # @param filepath: path to open the csv containing point locations
-        # @return: the points from the simulation contained within the window (format: index referring to the points in the csv file)
-        # TODO: where do we enter filepath? Who calls it?
-        # TODO: how do we clean the data (format is list of '{}' at the moment)
-
-        with open(filepath) as f:
-            reader = csv.reader(f)
-            data = list(reader)
-        self.cleanData(data)
-        
-        filteredList = []
-        indexList = []
-
-        v1 = [coordinates[0][0] - coordinates[1][0], coordinates[0][1] - coordinates[1][1], coordinates[0][2] - coordinates[1][2]]
-        v2 = [coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1], coordinates[0][2] - coordinates[2][2]]
-        
-        normVect = np.cross(v1, v2) # vector perpendicular to plane of window
-        planePoint = coordinates[0] # point on plane (given by coordinates at 0, in this case)
-        d = -np.dot(normVect, planePoint) # ax + by + cz = d plane equation
-
-        for i in range(len(data)):
-            poi = data[i]
-            normDist = abs(np.dot(normVect, poi) + d) / (np.linalg.norm(normVect))
-
-            pointVect = np.subtract(poi, planePoint)
-
-            v1_norm = np.linalg.norm(v1)
-            proj = (np.dot(pointVect, v1) / (v1_norm ** 2))*v1 # proj of pointvect along v1
-
-            # if normal distance to plane is less than offset and 
-            # magnitude of projection along vector is less than vector magnitude
-            if normDist <= offset and np.linalg.norm(proj) <= v1_norm: 
-                filteredList.append([data[i]])
-                indexList.append(i)
-
-
-
-        return indexList
+   
 
     def getArea(self, coordinates):
         # @return: area of window, based on window coordinates (for a rectangle, just base * height) 
