@@ -34,17 +34,22 @@ class Building():
         # directory = ""
         # roomfiles = os.listdir(directory)
         # csvfile = roomfiles[0]
-        print(platform.system())
+        print(platform.system)
         directory = input("Enter the path to the building_info.csv file: ")
         buildingPointLocFile = input("Enter the path to the building_points.csv file: ")
         energyFile = input("Enter the path to the folder containing energy simulation result files: ")
-        if platform.system == 'Windows':
+        if platform.system() == 'Windows':
             energystring = str(energyFile.replace("\\","/"))
             energystring = energystring.replace('"','')
             energyfiles = os.listdir(energystring)
-        else:   
+            directory = directory.replace("\\","/")
+            directory = directory.replace('"','')
+            buildingPointLocFile = buildingPointLocFile.replace("\\","/")
+            buildingPointLocFile = buildingPointLocFile.replace('"','')
+        else:
             energyfiles = os.listdir(energyFile)
-        energyfiles.remove(".DS_Store")
+        if energyfiles.count(".DS_Store")>0:
+            energyfiles.remove(".DS_Store")
         with open(directory, 'r') as roomInfo:
             csv_reader = reader(roomInfo)
             rows = list(csv_reader)
@@ -76,8 +81,10 @@ class Building():
             for room in self.rooms:
                 for window in room.windows:
                     window.setPointIndices(window.coordinates, window.pointLocFile)
-                    if platform.system == 'Windows':
-                        window.setEnergyFlow(energyFile+"\\"+energycsv) 
+                    if platform.system() == 'Windows':
+                        string = energyFile+"\\"+energycsv
+                        string = string.replace('"','')
+                        window.setEnergyFlow(string) 
                     else:
                         window.setEnergyFlow(energyFile+"/"+energycsv) 
                 room.setRoomEnergyFlow()
@@ -89,17 +96,4 @@ class Building():
             if (month < 5 or month>10):
                 roomsBestToWorst.reverse()
             timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
-        return timeRoomMapping       
-
-
-    
-    
-                 
-
-
-
-
-
-
-
-            
+        return timeRoomMapping  
