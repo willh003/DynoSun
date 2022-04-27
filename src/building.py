@@ -39,7 +39,7 @@ class Building():
         energyFile = input("Enter the path to the folder containing energy simulation result files: ")
         energyfiles = os.listdir(energyFile)
         energyfiles.remove(".DS_Store")
-        with open("/Users/wyattsullivan/Desktop/Building.csv", 'r') as roomInfo:
+        with open(directory, 'r') as roomInfo:
             csv_reader = reader(roomInfo)
             rows = list(csv_reader)
             for i in range(len(rows)):
