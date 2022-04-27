@@ -33,17 +33,17 @@ class Building():
         # directory = ""
         # roomfiles = os.listdir(directory)
         # csvfile = roomfiles[0]
-        directory = "/Users/wyattsullivan/Desktop/Building1"
-        buildingPointLocFile = "building_pts.csv"
-
-        energyFile = "/Users/wyattsullivan/Desktop/Energy"
+        
+        directory = input("Enter the path to the building_info.csv file: ")
+        buildingPointLocFile = input("Enter the path to the building_points.csv file: ")
+        energyFile = input("Enter the path to the folder containing energy simulation result files: ")
         energyfiles = os.listdir(energyFile)
         energyfiles.remove(".DS_Store")
         with open("/Users/wyattsullivan/Desktop/Building.csv", 'r') as roomInfo:
             csv_reader = reader(roomInfo)
             rows = list(csv_reader)
             for i in range(len(rows)):
-                while("" in rows[i]) :
+                while("" in rows[i]):
                     rows[i].remove("")
             for room in range(1,len(rows)):
                 numWindows = int(rows[room][1])
@@ -58,7 +58,7 @@ class Building():
                 windowlst = []
                 for i in range(1,numWindows+1):
 
-                    windowlst = windowlst + [Window(lst[(i-1)*4:((i-1)*4)+4],directory+"/"+buildingPointLocFile)]
+                    windowlst = windowlst + [Window(lst[(i-1)*4:((i-1)*4)+4],buildingPointLocFile)]
                 self.rooms = self.rooms + [Room(roomVolume, roomCapacity, windowlst, roomNumber)]    
         timeRoomMapping = {}
 
@@ -67,9 +67,7 @@ class Building():
             day = int(energycsv[3:5])
             month = int(energycsv[0:2])
             hour = int(energycsv[6:8])
-            print(day,hour,month)
             for room in self.rooms:
-                print(room.roomNumber)
                 for window in room.windows:
                     window.setPointIndices(window.coordinates, window.pointLocFile)
                     window.setEnergyFlow(energyFile+"/"+energycsv) 
