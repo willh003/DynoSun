@@ -3,6 +3,7 @@ from csv import reader
 from window import Window
 from room import Room
 import numpy as np
+import platform
 
 class Building():
 
@@ -33,7 +34,7 @@ class Building():
         # directory = ""
         # roomfiles = os.listdir(directory)
         # csvfile = roomfiles[0]
-        
+        print(platform.system())
         directory = input("Enter the path to the building_info.csv file: ")
         buildingPointLocFile = input("Enter the path to the building_points.csv file: ")
         energyFile = input("Enter the path to the folder containing energy simulation result files: ")
@@ -70,7 +71,10 @@ class Building():
             for room in self.rooms:
                 for window in room.windows:
                     window.setPointIndices(window.coordinates, window.pointLocFile)
-                    window.setEnergyFlow(energyFile+"/"+energycsv) 
+                    if platform.system == 'Windows':
+                        window.setEnergyFlow(energyFile+"\\"+energycsv) 
+                    else:
+                        window.setEnergyFlow(energyFile+"/"+energycsv) 
                 room.setRoomEnergyFlow()
                 roomEnergyFlows[room.roomNumber] = room.energyFlow
 
