@@ -22,7 +22,7 @@ def main():
     [460,	-111.417795	, 54]]
 
     window1 = Window(windowCoords=coords, pointLocFile='resources/point_locations.csv')
-    
+    print(window1.area)
    # print(window1.pointIndices, window2.pointIndices)
 
     #building = Building()
