@@ -33,16 +33,19 @@ class Building():
         # directory = ""
         # roomfiles = os.listdir(directory)
         # csvfile = roomfiles[0]
-        directory = ""
+        directory = "/Users/wyattsullivan/Desktop/Building1"
         buildingPointLocFile = "building_pts.csv"
 
         energyFile = "/Users/wyattsullivan/Desktop/Energy"
         energyfiles = os.listdir(energyFile)
         energyfiles.remove(".DS_Store")
-        with open("/Users/wyattsullivan/Documents/GitHub/DynoSun/src/resources/building.csv", 'r') as roomInfo:
-           csv_reader = reader(roomInfo)
-           rows = list(csv_reader) 
-           for room in range(len(rows)):
+        with open("/Users/wyattsullivan/Desktop/Building.csv", 'r') as roomInfo:
+            csv_reader = reader(roomInfo)
+            rows = list(csv_reader)
+            for i in range(len(rows)):
+                while("" in rows[i]) :
+                    rows[i].remove("")
+            for room in range(1,len(rows)):
                 numWindows = int(rows[room][1])
 
                 window = rows[room][4:4+(8*numWindows)]
@@ -55,13 +58,18 @@ class Building():
                 windowlst = []
                 for i in range(1,numWindows+1):
 
-                    windowlst = windowlst + [Window(lst[(i-1)*8:((i-1)*8)+8],directory+"/"+buildingPointLocFile)]
+                    windowlst = windowlst + [Window(lst[(i-1)*4:((i-1)*4)+4],directory+"/"+buildingPointLocFile)]
                 self.rooms = self.rooms + [Room(roomVolume, roomCapacity, windowlst, roomNumber)]    
         timeRoomMapping = {}
 
         for energycsv in energyfiles:
             roomEnergyFlows = {}
+            day = int(energycsv[3:5])
+            month = int(energycsv[0:2])
+            hour = int(energycsv[6:8])
+            print(day,hour,month)
             for room in self.rooms:
+                print(room.roomNumber)
                 for window in room.windows:
                     window.setPointIndices(window.coordinates, window.pointLocFile)
                     window.setEnergyFlow(energyFile+"/"+energycsv) 
@@ -71,8 +79,9 @@ class Building():
             
             roomEnergyFlows = dict(sorted(roomEnergyFlows.items(), key=lambda x: x[1]))
             roomsBestToWorst = list(roomEnergyFlows.keys())
-            roomsBestToWorst.reverse()
-            timeRoomMapping[energycsv[0:8]] = roomsBestToWorst
+            if (month < 5 or month>10):
+                roomsBestToWorst.reverse()
+            timeRoomMapping["MONTH: "+month+", DAY:" +day + ", HOUR: "+hour] = roomsBestToWorst
         return timeRoomMapping       
 
 

@@ -19,7 +19,6 @@ class Window():
 
 
         self.pointIndices = self.getPointIndices(pointLocFile, windowPointOffset)
-        print(self.pointIndices)
         self.energyFlow = energyFlow # initialize to 0 (user can override)
 
 
@@ -41,7 +40,7 @@ class Window():
         self.cleanData(window)
         return window
 
-    def getPointIndices(self, pointCoords, offset):
+    def getPointIndices(self, pointCoords, offset=0.1):
         # @param indexList: a list of indices of the points in this window in the specified csv files
         # https://stackoverflow.com/questions/21037241/how-to-determine-a-point-is-inside-or-outside-a-cube#:~:text=Construct%20the%20direction%20vector%20from,is%20outside%20of%20the%20cube
 
@@ -84,7 +83,6 @@ class Window():
                 filteredList.append(point) # not used atm, but contains a list of point locations
                 indexList.append(i) # contains a list of point indices
 
-        print(points[2637])
         return indexList
 
     def isInAlignedBox(self, point, boundingBox, error):
@@ -104,7 +102,7 @@ class Window():
         # used to change filepath for this window after initialization
         self.coordinates = windowCoords
 
-        self.pointIndices = self.getPoints(self.coordinates, pointLocFile)
+        self.pointIndices = self.getPointIndices(pointLocFile)
 
 
     def getArea(self, coordinates):

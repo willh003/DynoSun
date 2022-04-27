@@ -16,19 +16,12 @@ def main():
     # for i in windowsInRoomIndex:
     #     windowPts = input("Enter the window's four corner points (separated by a comma): ")
     #     windowCornerPts
-    coords = [[450,	-100	, 45.833333],
-    [450,	-111.417795	, 54],
-    [460,	-100	, 45.833333],
-    [460,	-111.417795	, 54]]
 
-    window1 = Window(windowCoords=coords, pointLocFile='resources/point_locations.csv')
-    
-   # print(window1.pointIndices, window2.pointIndices)
 
-    #building = Building()
-    #optRoom = building.schedule()
-    #print(optRoom)
-   # return optRoom
+    building = Building()
+    optRoom = building.schedule()
+    print(optRoom)
+    return optRoom
 
 
 
