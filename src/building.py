@@ -38,7 +38,12 @@ class Building():
         directory = input("Enter the path to the building_info.csv file: ")
         buildingPointLocFile = input("Enter the path to the building_points.csv file: ")
         energyFile = input("Enter the path to the folder containing energy simulation result files: ")
-        energyfiles = os.listdir(energyFile)
+        if platform.system == 'Windows':
+            energystring = str(energyFile.replace("\\","/"))
+            energystring = energystring.replace('"','')
+            energyfiles = os.listdir(energystring)
+        else:   
+            energyfiles = os.listdir(energyFile)
         energyfiles.remove(".DS_Store")
         with open(directory, 'r') as roomInfo:
             csv_reader = reader(roomInfo)
