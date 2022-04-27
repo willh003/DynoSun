@@ -81,7 +81,7 @@ class Building():
             roomsBestToWorst = list(roomEnergyFlows.keys())
             if (month < 5 or month>10):
                 roomsBestToWorst.reverse()
-            timeRoomMapping["MONTH: "+str(month)+", DAY:" +str(day) + ", HOUR: "+str(hour)] = roomsBestToWorst
+            timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
         return timeRoomMapping       
 
 
