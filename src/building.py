@@ -87,6 +87,7 @@ class Building():
                 day = int(energycsv[3:5])
                 month = int(energycsv[0:2])
                 hour = int(energycsv[6:8])
+                print(month, day, hour)
                 for room in self.rooms:
                     for window in room.windows:
                         window.setPointIndices(window.coordinates, window.pointLocFile)
@@ -107,11 +108,9 @@ class Building():
                 for i in range(290):
                     energyLst.append(0)
                 for i in roomsBestToWorst:
-                    print(i,len(energyLst))
                     energyLst[int(i)] = roomEnergyFlows[i]
                 if (month < 5 or month>10):
                     roomsBestToWorst.reverse()
-                print(energyLst)
                 timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
                 
                 spamwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
