@@ -113,6 +113,6 @@ class Building():
             timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
             
             with open(finalcsv, 'w') as csvfile:
-                spamwriter = csv.writer(csvfile, delimiter=':', quoting=csv.QUOTE_MINIMAL)
+                spamwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
                 spamwriter.writerow(energyLst)
         return timeRoomMapping  
