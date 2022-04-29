@@ -104,7 +104,7 @@ class Building():
             
             energyLst = []
             
-            for i in range(289):
+            for i in range(290):
                 energyLst.append(0)
             for i in roomsBestToWorst:
                 print(i,len(energyLst))
