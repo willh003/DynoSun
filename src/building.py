@@ -36,14 +36,14 @@ class Building():
         # roomfiles = os.listdir(directory)
         # csvfile = roomfiles[0]
 
-        # directory = input("Enter the path to the building_info.csv file: ")
-        # buildingPointLocFile = input("Enter the path to the building_points.csv file: ")
-        # energyFile = input("Enter the path to the folder containing energy simulation result files: ")
-        # finalcsv = input("Enter the path to where you would like the results to be placed: ")
-        directory = "/Users/wyattsullivan/Desktop/Building.csv"
-        buildingPointLocFile = "/Users/wyattsullivan/Desktop/Building1/building_pts.csv"
-        energyFile = "/Users/wyattsullivan/Desktop/Energy"
-        finalcsv = energyFile
+        directory = input("Enter the path to the building_info.csv file: ")
+        buildingPointLocFile = input("Enter the path to the building_points.csv file: ")
+        energyFile = input("Enter the path to the folder containing energy simulation result files: ")
+        finalcsv = input("Enter the path to where you would like the results to be placed: ")
+        # directory = "/Users/wyattsullivan/Desktop/Building.csv"
+        # buildingPointLocFile = "/Users/wyattsullivan/Desktop/Building1/building_pts.csv"
+        # energyFile = "/Users/wyattsullivan/Desktop/Energy"
+        # finalcsv = energyFile
         finalcsv = finalcsv+"/"+"results.csv"
         finalcsv = finalcsv.replace('"','')
         if platform.system() == 'Windows':
@@ -103,13 +103,14 @@ class Building():
             roomsBestToWorst = list(roomEnergyFlows.keys())
             
             energyLst = []
-
+            
             for i in range(289):
                 energyLst.append(0)
             for i in roomsBestToWorst:
                 energyLst[int(i)] = roomEnergyFlows[i]
             if (month < 5 or month>10):
                 roomsBestToWorst.reverse()
+            print(energyLst)
             timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
             
             with open(finalcsv, 'w') as csvfile:
