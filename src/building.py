@@ -107,6 +107,7 @@ class Building():
             for i in range(289):
                 energyLst.append(0)
             for i in roomsBestToWorst:
+                print(i,len(energyLst))
                 energyLst[int(i)] = roomEnergyFlows[i]
             if (month < 5 or month>10):
                 roomsBestToWorst.reverse()
