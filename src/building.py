@@ -81,40 +81,39 @@ class Building():
                     windowlst = windowlst + [Window(lst[(i-1)*4:((i-1)*4)+4],buildingPointLocFile)]
                 self.rooms = self.rooms + [Room(roomVolume, roomCapacity, windowlst, roomNumber)]    
         timeRoomMapping = {}
+        with open(finalcsv, 'w') as csvfile:
+            for energycsv in energyfiles:
+                roomEnergyFlows = {}
+                day = int(energycsv[3:5])
+                month = int(energycsv[0:2])
+                hour = int(energycsv[6:8])
+                for room in self.rooms:
+                    for window in room.windows:
+                        window.setPointIndices(window.coordinates, window.pointLocFile)
+                        if platform.system() == 'Windows':
+                            string = energyFile+"\\"+energycsv
+                            string = string.replace('"','')
+                            window.setEnergyFlow(string) 
+                        else:
+                            window.setEnergyFlow(energyFile+"/"+energycsv) 
+                    room.setRoomEnergyFlow()
+                    roomEnergyFlows[room.roomNumber] = room.energyFlow
 
-        for energycsv in energyfiles:
-            roomEnergyFlows = {}
-            day = int(energycsv[3:5])
-            month = int(energycsv[0:2])
-            hour = int(energycsv[6:8])
-            for room in self.rooms:
-                for window in room.windows:
-                    window.setPointIndices(window.coordinates, window.pointLocFile)
-                    if platform.system() == 'Windows':
-                        string = energyFile+"\\"+energycsv
-                        string = string.replace('"','')
-                        window.setEnergyFlow(string) 
-                    else:
-                        window.setEnergyFlow(energyFile+"/"+energycsv) 
-                room.setRoomEnergyFlow()
-                roomEnergyFlows[room.roomNumber] = room.energyFlow
-
-            roomEnergyFlows = dict(sorted(roomEnergyFlows.items(), key=lambda x: x[1]))
-            roomsBestToWorst = list(roomEnergyFlows.keys())
-            
-            energyLst = []
-            
-            for i in range(290):
-                energyLst.append(0)
-            for i in roomsBestToWorst:
-                print(i,len(energyLst))
-                energyLst[int(i)] = roomEnergyFlows[i]
-            if (month < 5 or month>10):
-                roomsBestToWorst.reverse()
-            print(energyLst)
-            timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
-            
-            with open(finalcsv, 'w') as csvfile:
+                roomEnergyFlows = dict(sorted(roomEnergyFlows.items(), key=lambda x: x[1]))
+                roomsBestToWorst = list(roomEnergyFlows.keys())
+                
+                energyLst = []
+                
+                for i in range(290):
+                    energyLst.append(0)
+                for i in roomsBestToWorst:
+                    print(i,len(energyLst))
+                    energyLst[int(i)] = roomEnergyFlows[i]
+                if (month < 5 or month>10):
+                    roomsBestToWorst.reverse()
+                print(energyLst)
+                timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
+                
                 spamwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
                 spamwriter.writerow(energyLst)
-        return timeRoomMapping  
+            return timeRoomMapping  
