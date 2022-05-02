@@ -18,11 +18,10 @@ class Building():
         # self.orientation = orientation
         # self.location = location
 
-    def map1(self, string):
+    def floater(self, string):
         lst = string.split(" ")
         numbers = [ float(x) for x in lst ]
         return numbers
-
 
 
     def schedule(self):
@@ -71,7 +70,7 @@ class Building():
                 window = rows[room][4:4+(8*numWindows)]
                 lst = []
                 for windowCorner in window:
-                    lst = lst + [self.map1(windowCorner)]
+                    lst = lst + [self.floater(windowCorner)]
                 roomNumber = (rows[room][0][4:])
                 roomCapacity = (rows[room][2])
                 roomVolume = (rows[room][3])
@@ -111,6 +110,7 @@ class Building():
                     energyLst[int(i)] = roomEnergyFlows[i]
                 if (month < 5 or month>10):
                     roomsBestToWorst.reverse()
+                print(energyLst)
                 timeRoomMapping["MONTH "+str(month)+", DAY " +str(day) + ", HOUR "+str(hour)] = roomsBestToWorst
                 
                 spamwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
