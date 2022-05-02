@@ -17,14 +17,26 @@ def main():
     #     windowPts = input("Enter the window's four corner points (separated by a comma): ")
     #     windowCornerPts
 
-    # window1 = Window(windowCoords=coords, pointLocFile='resources/point_locations.csv')
-    # print(window1.area)
-   # print(window1.pointIndices, window2.pointIndices)
+    coords = [[684.287354, -94.700005, 48.999996],
+             [684.512591, -94.700005, 48.999996],
+             [684.287354, -94.700005, 59.000004],
+             [684.512591, -94.700005, 59.000004]]
 
-    building = Building()
-    optRoom = building.schedule()
-    print(optRoom)
-    return optRoom
+
+
+    coords1 = [[690., -109.75, 6.],
+             [680., -109.75, 6.],
+             [690., -109.75, 7.],
+             [680., -109.75, 7.]]
+    window1 = Window(windowCoords=coords1, pointLocFile='resources/point_locations.csv')
+    # print(window1.area)
+    print(window1.pointIndices)
+    print("---------------")
+    print(window1.coordinates)
+    #building = Building()
+    #optRoom = building.schedule()
+    #print(optRoom)
+    #return optRoom
 
 
 

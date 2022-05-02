@@ -49,7 +49,7 @@ class Window():
             points = list(reader)
         self.cleanData(points)
 
-        window = self.coordinates
+        window = self.coordinates.copy()
 
         # absolute values so the coordinate system is never negative (want +x, +y, +z)
         # this might be a problem - may need to manually find the larger points and use those as the references
@@ -58,13 +58,17 @@ class Window():
         zvect = np.cross(xvect, yvect)
         zvect = offset * zvect/np.linalg.norm(zvect)
 
+        # create bounding box around window, with width 2*offset
         for i in range(len(window[:4])):
             window.append(np.add(window[i], zvect))
             window[i] = np.add(window[i], -1*zvect)
+        
 
         xlocal = xvect/np.linalg.norm(xvect)
         ylocal = yvect/np.linalg.norm(yvect)
         zlocal = zvect/np.linalg.norm(zvect)
+        print("vect")       
+        print(yvect)
 
         transMatrix = np.array([xlocal, ylocal, zlocal]).T # transformation matrix with new coordinate axes as columns
 
