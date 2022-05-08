@@ -1,4 +1,4 @@
 # DynoSun
-An automated scheduling platform that optimizes energy efficiency based on solar radiation.
+A scheduling platform that improves building energy efficiency through the power of the sun!
 
 Will Huey, Wyatt Sullivan, Gabi Castro, Justin Tien-Smith
